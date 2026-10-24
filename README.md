@@ -51,14 +51,6 @@ All three checks passed during development, including 18 automated tests.
 
 ## Decisions
 
-### Data Leakage Experiment
-
-I repeated the cross-validation experiment after temporarily including customer rating as a feature.
-
-For Balanced Logistic Regression, ROC-AUC increased from 0.7680 to 0.9043, a difference of 0.1363. However, this improvement is misleading because customer ratings are collected after delivery and are not available when an order is placed.
-
-Therefore, customer rating was excluded from the final model. This experiment used training data only and did not change the final model or its saved results. The code and output are included in the analysis notebook.
-
 ### Data and Feature Selection
 
 The provided dataset contains 3,000 orders. Of these, 468 orders (15.60%) arrived late.
@@ -91,11 +83,12 @@ The preprocessing pipeline uses median imputation and scaling for numerical feat
 
 ### Data Leakage Experiment
 
-To demonstrate data leakage, I repeated the cross-validation comparison after temporarily including customer rating as a feature.
+I repeated the cross-validation comparison after temporarily including customer rating as a feature.
 
 For Balanced Logistic Regression, ROC-AUC increased from 0.7680 to 0.9043, an improvement of 0.1363. However, this improvement is misleading because customer ratings are collected after delivery and are not available when an order is placed.
 
-Therefore, customer rating was excluded from the final model. The experiment used training data only and did not change the final feature list or saved model.
+Therefore, customer rating was excluded from the final model. The experiment used training data only and did not change the final feature list or saved model. The code and output are included in the analysis notebook.
+
 ### Model Comparison
 
 Five models were compared using five-fold stratified cross-validation on the training data only.
