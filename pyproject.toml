@@ -1,0 +1,34 @@
+# Define how Python builds this package.
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+# Basic information about our package.
+[project]
+name = "latedeliveries"
+version = "0.1.0"
+description = "Predict late food deliveries using machine learning"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy",
+    "pandas",
+    "scikit-learn",
+    "joblib",
+]
+
+# Tell setuptools that our package is inside src.
+[tool.setuptools.packages.find]
+where = ["src"]
+
+# Tell pytest where to find our tests.
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+# Configure Ruff formatting and source folders.
+[tool.ruff]
+line-length = 88
+src = ["src", "tests"]
+
+# Enable the exact linting rule groups required by the lab.
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
