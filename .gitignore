@@ -1,0 +1,20 @@
+# Python cache files
+__pycache__/
+*.py[cod]
+
+# Python package installation files
+*.egg-info/
+
+# Local environments and environment variables
+.venv/
+.env
+
+# Testing and linting caches
+.pytest_cache/
+.ruff_cache/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# macOS system files
+.DS_Store
