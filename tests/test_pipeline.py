@@ -2,10 +2,12 @@
 
 import pandas as pd
 import pytest
+from sklearn.linear_model import LogisticRegression
 
 from latedeliveries.pipeline import (
     CATEGORICAL_FEATURES,
     NUMERIC_FEATURES,
+    build_pipeline,
     split_orders,
 )
 
@@ -75,3 +77,49 @@ def test_repeatable_split(orders):
 
     pd.testing.assert_frame_equal(X_train_1, X_train_2)
     pd.testing.assert_series_equal(y_train_1, y_train_2)
+
+
+# Verify predictions work with missing values and unseen categories.
+def test_pipeline_handles_unusual_inputs(orders):
+    """Check predictions with missing and unfamiliar input values."""
+    X_train, _, y_train, _ = split_orders(orders)
+
+    # Train only on the training portion of the dataset.
+    pipeline = build_pipeline(LogisticRegression(max_iter=1000))
+    pipeline.fit(X_train, y_train)
+
+    # Prepare a challenging example using a training record.
+    sample = X_train.iloc[[0]].copy()
+    sample["distance_km"] = float("nan")
+    sample["weather"] = "hail"
+    sample["prep_minutes"] = float("nan")
+
+    # Confirm the pipeline produces a valid prediction.
+    prediction = pipeline.predict(sample)
+    probabilities = pipeline.predict_proba(sample)
+
+    assert len(prediction) == 1
+    assert prediction[0] in (0, 1)
+    assert probabilities.shape == (1, 2)
+    assert 0 <= probabilities[0, 1] <= 1
+    assert probabilities[0].sum() == pytest.approx(1.0)
+
+
+# Verify the numeric imputer learns the training-data median.
+def test_numeric_imputer_uses_training_median(orders):
+    """Check that imputation uses the training data only."""
+    X_train, _, y_train, _ = split_orders(orders)
+
+    pipeline = build_pipeline(LogisticRegression(max_iter=1000))
+    pipeline.fit(X_train, y_train)
+
+    # Access the fitted numeric imputer inside the pipeline.
+    numeric_pipeline = pipeline.named_steps["preprocess"].named_transformers_["numeric"]
+    imputer = numeric_pipeline.named_steps["imputer"]
+
+    # Compare the learned distance median with the training median.
+    distance_index = NUMERIC_FEATURES.index("distance_km")
+
+    assert imputer.statistics_[distance_index] == pytest.approx(
+        X_train["distance_km"].median()
+    )
